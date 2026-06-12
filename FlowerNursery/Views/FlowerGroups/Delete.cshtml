@@ -1,0 +1,41 @@
+@model FlowerNursery.Models.FlowerGroup
+@{
+    ViewData["Title"] = "Delete Flower Group";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger shadow-sm">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0"><i class="bi bi-trash me-2"></i>Delete Flower Group</h4>
+            </div>
+            <div class="card-body p-4">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Warning:</strong> This will also delete all watering schedules for this group.
+                </div>
+
+                <dl class="row">
+                    <dt class="col-sm-4">Species</dt>
+                    <dd class="col-sm-8">@Model.Species</dd>
+                    <dt class="col-sm-4">Greenhouse</dt>
+                    <dd class="col-sm-8">@Model.Greenhouse?.Name</dd>
+                    <dt class="col-sm-4">Quantity</dt>
+                    <dd class="col-sm-8">@Model.Quantity plants</dd>
+                    <dt class="col-sm-4">Waterings</dt>
+                    <dd class="col-sm-8">@Model.WateringSchedules.Count total</dd>
+                </dl>
+
+                <form asp-action="Delete">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger flex-fill">
+                            <i class="bi bi-trash me-1"></i>Yes, Delete
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary flex-fill">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

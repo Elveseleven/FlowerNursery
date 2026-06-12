@@ -1,0 +1,43 @@
+@model IEnumerable<FlowerNursery.Models.WateringSchedule>
+@{
+    ViewData["Title"] = "Watering Tasks";
+    var today = Model.Where(ws => ws.ScheduledDate.Date == DateTime.Today).ToList();
+    var overdue = Model.Where(ws => ws.ScheduledDate.Date < DateTime.Today).ToList();
+    var upcoming = Model.Where(ws => ws.ScheduledDate.Date > DateTime.Today).ToList();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2"><i class="bi bi-droplet me-2 text-info"></i>Watering Tasks</h1>
+    <a asp-action="Create" class="btn btn-success">
+        <i class="bi bi-plus-lg me-1"></i>Schedule Watering
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5 text-muted">
+        <i class="bi bi-droplet fs-1 d-block mb-2"></i>
+        <p>No pending watering tasks.</p>
+        <a asp-action="Create" class="btn btn-success">Schedule a Watering</a>
+    </div>
+}
+else
+{
+    @if (overdue.Any())
+    {
+        <h5 class="text-danger mb-2"><i class="bi bi-exclamation-triangle me-1"></i>Overdue (@overdue.Count)</h5>
+        @await Html.PartialAsync("_WateringTable", overdue, new ViewDataDictionary(ViewData) { { "rowClass", "table-danger" } })
+    }
+
+    @if (today.Any())
+    {
+        <h5 class="text-warning mb-2 mt-3"><i class="bi bi-calendar-day me-1"></i>Today (@today.Count)</h5>
+        @await Html.PartialAsync("_WateringTable", today, new ViewDataDictionary(ViewData) { { "rowClass", "table-warning" } })
+    }
+
+    @if (upcoming.Any())
+    {
+        <h5 class="text-success mb-2 mt-3"><i class="bi bi-calendar-week me-1"></i>Upcoming (@upcoming.Count)</h5>
+        @await Html.PartialAsync("_WateringTable", upcoming, new ViewDataDictionary(ViewData) { { "rowClass", "" } })
+    }
+}

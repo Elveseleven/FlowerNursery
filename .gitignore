@@ -1,0 +1,41 @@
+## .NET
+*.user
+*.suo
+.vs/
+bin/
+obj/
+*.log
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Rider
+.idea/
+
+## VS Code
+.vscode/
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+
+## NuGet
+*.nupkg
+*.snupkg
+packages/
+!**/packages/build/
+*.nuget.props
+*.nuget.targets
+
+## User-specific files
+*.rsuser
+*.user
+*.userosscache
+*.sln.docstates
+
+## ASP.NET Scaffolding
+ScaffoldingReadMe.txt

@@ -1,0 +1,112 @@
+@model IEnumerable<FlowerNursery.Models.FlowerGroup>
+@{
+    ViewData["Title"] = "Flower Groups";
+    var greenhouses = ViewBag.Greenhouses as IEnumerable<FlowerNursery.Models.Greenhouse>;
+    var filterId = (int?)ViewBag.FilterGreenhouseId;
+    var filterName = ViewBag.FilterGreenhouse as string;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h2">
+        <i class="bi bi-flower2 me-2 text-primary"></i>
+        Flower Groups
+        @if (filterName != null)
+        {
+            <small class="text-muted fs-5">in @filterName</small>
+        }
+    </h1>
+    <a asp-action="Create" class="btn btn-success">
+        <i class="bi bi-plus-lg me-1"></i>Add Flower Group
+    </a>
+</div>
+
+<!-- Greenhouse filter -->
+<div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
+    <span class="text-muted small">Filter by greenhouse:</span>
+    <a asp-action="Index" class="btn btn-sm @(filterId == null ? "btn-success" : "btn-outline-success")">All</a>
+    @if (greenhouses != null)
+    {
+        @foreach (var gh in greenhouses)
+        {
+            <a asp-action="Index" asp-route-greenhouseId="@gh.Id"
+               class="btn btn-sm @(filterId == gh.Id ? "btn-success" : "btn-outline-success")">
+                @gh.Name
+            </a>
+        }
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5 text-muted">
+        <i class="bi bi-flower2 fs-1 d-block mb-2"></i>
+        <p>No flower groups found.</p>
+        <a asp-action="Create" class="btn btn-success">Add Flower Group</a>
+    </div>
+}
+else
+{
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Species / Variety</th>
+                        <th>Color</th>
+                        <th>Quantity</th>
+                        <th>Greenhouse</th>
+                        <th>Pending Waterings</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var fg in Model)
+                    {
+                        var pending = fg.WateringSchedules.Count(ws => !ws.IsCompleted);
+                        <tr>
+                            <td><strong>@fg.Species</strong></td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(fg.Color))
+                                {
+                                    <span class="badge bg-secondary">@fg.Color</span>
+                                }
+                            </td>
+                            <td>@fg.Quantity</td>
+                            <td>
+                                <a asp-controller="Greenhouses" asp-action="Details" asp-route-id="@fg.GreenhouseId" class="text-decoration-none">
+                                    @fg.Greenhouse?.Name
+                                </a>
+                            </td>
+                            <td>
+                                @if (pending > 0)
+                                {
+                                    <span class="badge bg-info">@pending pending</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">none</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <a asp-action="Details" asp-route-id="@fg.Id" class="btn btn-sm btn-outline-secondary" title="Details">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@fg.Id" class="btn btn-sm btn-outline-primary" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a asp-controller="WateringSchedules" asp-action="Create" asp-route-flowerGroupId="@fg.Id" class="btn btn-sm btn-outline-info" title="Schedule Watering">
+                                        <i class="bi bi-droplet"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@fg.Id" class="btn btn-sm btn-outline-danger" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

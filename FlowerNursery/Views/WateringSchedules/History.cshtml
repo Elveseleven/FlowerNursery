@@ -1,0 +1,113 @@
+@model IEnumerable<FlowerNursery.Models.WateringSchedule>
+@{
+    ViewData["Title"] = "Watering History";
+    var fg = ViewBag.FlowerGroup as FlowerNursery.Models.FlowerGroup;
+}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h1 class="h2">
+            <i class="bi bi-clock-history me-2 text-secondary"></i>Watering History
+        </h1>
+        @if (fg != null)
+        {
+            <p class="text-muted">
+                <i class="bi bi-flower2 me-1"></i><strong>@fg.Species</strong>
+                &nbsp;—&nbsp;
+                <i class="bi bi-building me-1"></i>@fg.Greenhouse?.Name
+            </p>
+        }
+    </div>
+    <div class="d-flex gap-2">
+        @if (fg != null)
+        {
+            <a asp-controller="FlowerGroups" asp-action="Details" asp-route-id="@fg.Id" class="btn btn-outline-secondary">
+                Back to Flower Group
+            </a>
+        }
+        else
+        {
+            <a asp-action="Index" class="btn btn-outline-secondary">Back</a>
+        }
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5 text-muted">
+        <i class="bi bi-clock-history fs-1 d-block mb-2"></i>
+        <p>No watering history yet.</p>
+    </div>
+}
+else
+{
+    var completed = Model.Where(ws => ws.IsCompleted).ToList();
+    var pending = Model.Where(ws => !ws.IsCompleted).ToList();
+
+    <div class="row g-3 mb-3">
+        <div class="col-auto">
+            <span class="badge bg-success fs-6">@completed.Count completed</span>
+        </div>
+        <div class="col-auto">
+            <span class="badge bg-warning text-dark fs-6">@pending.Count pending/missed</span>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Scheduled Date</th>
+                        <th>Status</th>
+                        <th>Completed Date</th>
+                        <th>Notes</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ws in Model)
+                    {
+                        <tr class="@(ws.IsCompleted ? "" : ws.ScheduledDate.Date < DateTime.Today ? "table-danger" : "table-warning")">
+                            <td>@ws.ScheduledDate.ToString("dd MMM yyyy")</td>
+                            <td>
+                                @if (ws.IsCompleted)
+                                {
+                                    <span class="badge bg-success"><i class="bi bi-check2 me-1"></i>Completed</span>
+                                }
+                                else if (ws.ScheduledDate.Date < DateTime.Today)
+                                {
+                                    <span class="badge bg-danger">Overdue</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                }
+                            </td>
+                            <td>
+                                @(ws.CompletedDate.HasValue ? ws.CompletedDate.Value.ToString("dd MMM yyyy") : "—")
+                            </td>
+                            <td class="text-muted small">@ws.Notes</td>
+                            <td>
+                                @if (!ws.IsCompleted)
+                                {
+                                    <form asp-controller="WateringSchedules" asp-action="MarkComplete" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@ws.Id" />
+                                        <input type="hidden" name="returnUrl" value="/WateringSchedules/History/@fg?.Id" />
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-success" title="Mark done">
+                                            <i class="bi bi-check2"></i>
+                                        </button>
+                                    </form>
+                                }
+                                <a asp-controller="WateringSchedules" asp-action="Delete" asp-route-id="@ws.Id" class="btn btn-sm btn-outline-danger ms-1">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
